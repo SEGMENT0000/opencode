@@ -1,4 +1,5 @@
 import { Schema } from "effect"
+import type { Cost } from "./cost.js"
 import { ModelID, ProviderID } from "./ids.js"
 import {
   mergeRequestOptions,
@@ -87,6 +88,8 @@ export namespace Model {
     readonly limit?: Limit
     readonly modalities?: Modalities
     readonly compatibility?: Compatibility
+    /** Listed prices, as models.dev v2 `cost`. `calculateCost(model.cost, usage)` turns usage into USD. */
+    readonly cost?: Cost
   }
 
   export interface Chat<Options extends ProviderOptions = ProviderOptions, C extends Compact = Compact>
@@ -118,6 +121,8 @@ export namespace Model {
     readonly limit?: Limit
     readonly modalities?: Modalities
     readonly compatibility?: Compatibility
+    /** Listed prices, as models.dev v2 `cost`. `calculateCost(model.cost, usage)` turns usage into USD. */
+    readonly cost?: Cost
   }
 
   /**
