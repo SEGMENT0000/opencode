@@ -18,7 +18,7 @@ for (const model of [
           type: "media",
           media: Media.url("https://example.com/image.png", { mediaType: "image/png" }),
           providerMetadata:
-            detail === undefined ? undefined : { [model.route.providerMetadataKey ?? model.provider]: { detail } },
+            detail === undefined ? undefined : { [model.api.providerMetadataKey ?? model.provider]: { detail } },
         })),
       )
       const codec = Schema.fromJsonString(Message)

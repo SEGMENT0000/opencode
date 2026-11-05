@@ -94,9 +94,9 @@ describe("OpenAI-compatible Chat route", () => {
       expect(prepared.model).toMatchObject({
         id: "deepseek-chat",
         provider: "deepseek",
-        route: { id: "openai-compatible-chat" },
+        api: { id: "openai-compatible-chat" },
       })
-      expect(prepared.model.route.endpoint).toMatchObject({
+      expect(prepared.model.api.endpoint).toMatchObject({
         baseURL: "https://api.deepseek.test/v1/",
         query: { "api-version": "2026-01-01" },
       })

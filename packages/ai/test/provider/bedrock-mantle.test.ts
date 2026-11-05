@@ -21,7 +21,7 @@ describe("Amazon Bedrock Mantle provider", () => {
   it.effect("uses Responses by default and exposes Chat and Messages explicitly", () =>
     Effect.gen(function* () {
       const provider = AmazonBedrockMantle.configure({ credentials })
-      expect(provider.model("openai.gpt-oss-120b").route.transport).toBe(OpenResponses.httpTransport)
+      expect(provider.model("openai.gpt-oss-120b").api.transport).toBe(OpenResponses.httpTransport)
       const chat = yield* compileRequest(ai.request({ model: provider.chat("openai.gpt-oss-120b"), prompt: "Hi" }))
       const messages = yield* compileRequest(
         ai.request({ model: provider.messages("anthropic.claude-opus-4-8"), prompt: "Hi", cache: "none" }),
@@ -45,9 +45,9 @@ describe("Amazon Bedrock Mantle provider", () => {
         protocol: "open-responses",
         body: { model: "openai.gpt-oss-120b", store: false },
       })
-      expect(provider.model("openai.gpt-oss-120b").route.providerMetadataKey).toBe("mantle")
-      expect(provider.chat("openai.gpt-oss-120b").route.providerMetadataKey).toBe("mantle")
-      expect(provider.messages("anthropic.claude-opus-4-8").route.providerMetadataKey).toBe("mantle")
+      expect(provider.model("openai.gpt-oss-120b").api.providerMetadataKey).toBe("mantle")
+      expect(provider.chat("openai.gpt-oss-120b").api.providerMetadataKey).toBe("mantle")
+      expect(provider.messages("anthropic.claude-opus-4-8").api.providerMetadataKey).toBe("mantle")
     }),
   )
 

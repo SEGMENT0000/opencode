@@ -25,8 +25,8 @@ describe("provider package entrypoints", () => {
     modules.forEach((module, index) => {
       const model = module.model("qwen3.8-max", settings)
       expect(model.provider).toBe("alibaba")
-      expect(model.route.id).toBe(routes[index])
-      expect(model.route.endpoint.baseURL).toBe(
+      expect(model.api.id).toBe(routes[index])
+      expect(model.baseURL).toBe(
         `https://llm-fixture.eu-central-1.maas.aliyuncs.com/${index === 2 ? "apps/anthropic/v1" : "compatible-mode/v1"}`,
       )
       expect(model.options?.headers).toEqual(settings.headers)
@@ -51,8 +51,8 @@ describe("provider package entrypoints", () => {
     modules.forEach((module, index) => {
       const selected = module.model("kimi-k3", settings)
       expect(selected.provider).toBe("moonshotai")
-      expect(selected.route.id).toBe(routes[index])
-      expect(selected.route.endpoint.baseURL).toBe(settings.baseURL)
+      expect(selected.api.id).toBe(routes[index])
+      expect(selected.baseURL).toBe(settings.baseURL)
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
     })
@@ -88,9 +88,9 @@ describe("provider package entrypoints", () => {
     for (const [provider, baseURL, protocol, module] of providers) {
       const selected = module.model("gpt-5.4", settings)
       expect(selected.provider).toBe(provider)
-      expect(selected.route.id).toBe(`${provider}-responses`)
-      expect(selected.route.protocol).toBe(protocol)
-      expect(selected.route.endpoint).toMatchObject({ baseURL, path: "/responses" })
+      expect(selected.api.id).toBe(`${provider}-responses`)
+      expect(selected.api.protocol).toBe(protocol)
+      expect(selected.api.endpoint).toMatchObject({ baseURL, path: "/responses" })
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
       expect(selected.options?.providerOptions).toEqual({
@@ -98,7 +98,7 @@ describe("provider package entrypoints", () => {
         store: false,
         include: ["reasoning.encrypted_content"],
       })
-      expect(module.model("gpt-5.4", { ...settings, baseURL: "https://gateway.test/v1" }).route.endpoint.baseURL).toBe(
+      expect(module.model("gpt-5.4", { ...settings, baseURL: "https://gateway.test/v1" }).baseURL).toBe(
         "https://gateway.test/v1",
       )
     }
@@ -117,7 +117,7 @@ describe("provider package entrypoints", () => {
     modules.forEach((module, index) => {
       const selected = module.model("command-a-03-2025", settings)
       expect(selected.provider).toBe("cohere")
-      expect([selected.route.id, selected.route.endpoint.baseURL]).toEqual(routes[index])
+      expect([selected.api.id, selected.baseURL]).toEqual(routes[index])
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
     })
@@ -140,8 +140,8 @@ describe("provider package entrypoints", () => {
     modules.forEach((module, index) => {
       const selected = module.model("MiniMax-M3", settings)
       expect(selected.provider).toBe("minimax")
-      expect(selected.route.id).toBe(routes[index])
-      expect(selected.route.endpoint.baseURL).toBe(settings.baseURL)
+      expect(selected.api.id).toBe(routes[index])
+      expect(selected.baseURL).toBe(settings.baseURL)
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
     })
@@ -173,8 +173,8 @@ describe("provider package entrypoints", () => {
     modules.forEach((module, index) => {
       const selected = module.model("glm-5.3", settings)
       expect(selected.provider).toBe(index < 2 ? "zai" : "zai-coding-plan")
-      expect(selected.route.id).toBe(routes[index])
-      expect(selected.route.endpoint.baseURL).toBe(settings.baseURL)
+      expect(selected.api.id).toBe(routes[index])
+      expect(selected.baseURL).toBe(settings.baseURL)
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
     })
@@ -191,8 +191,8 @@ describe("provider package entrypoints", () => {
     }
     const deepinfra = DeepInfra.model("google/gemma-3-27b-it", settings)
 
-    expect(deepinfra.route.id).toBe("deepinfra-chat")
-    expect(deepinfra.route.endpoint.baseURL).toBe("https://provider.example.test/v1/openai")
+    expect(deepinfra.api.id).toBe("deepinfra-chat")
+    expect(deepinfra.baseURL).toBe("https://provider.example.test/v1/openai")
     expect(deepinfra.options?.providerOptions).toEqual({ reasoningEffort: "high" })
     expect(deepinfra.options?.headers).toEqual(settings.headers)
     expect(deepinfra.options?.http?.body).toEqual(settings.body)
@@ -212,7 +212,7 @@ describe("provider package entrypoints", () => {
         reasoningEffort: "high",
       })
       expect(selected.provider).toBe(provider.id)
-      expect(selected.route.endpoint.baseURL).toBe(provider.baseURL({ accountId: "account" }))
+      expect(selected.baseURL).toBe(provider.baseURL({ accountId: "account" }))
       expect(selected.options?.headers).toMatchObject({ "x-application": "opencode" })
       expect(selected.options?.http?.body).toEqual({ custom: true })
       expect(selected.options?.providerOptions).toEqual({ reasoningEffort: "high" })
@@ -238,7 +238,7 @@ describe("provider package entrypoints", () => {
     })
 
     for (const selected of [openrouter, xai]) {
-      expect(selected.route.endpoint.baseURL).toBe(settings.baseURL)
+      expect(selected.baseURL).toBe(settings.baseURL)
       expect(selected.options?.headers).toEqual(settings.headers)
       expect(selected.options?.http?.body).toEqual(settings.body)
     }
@@ -255,7 +255,7 @@ describe("provider package entrypoints", () => {
       unrelatedInheritedSetting: true,
     })
 
-    expect(selected.route.id).toBe("openai-responses")
+    expect(selected.api.id).toBe("openai-responses")
     expect(selected.options?.headers).toEqual({ "x-application": "opencode" })
     expect(selected.options?.http?.body).toEqual({ service_tier: "priority" })
   })
@@ -273,8 +273,8 @@ describe("provider package entrypoints", () => {
     })
 
     expect(String(selected.provider)).toBe("example")
-    expect(selected.route.id).toBe("openai-compatible-responses")
-    expect(selected.route.endpoint).toMatchObject({
+    expect(selected.api.id).toBe("openai-compatible-responses")
+    expect(selected.api.endpoint).toMatchObject({
       baseURL: "https://responses.example.test/v1",
       path: "/responses",
     })
@@ -299,14 +299,14 @@ describe("provider package entrypoints", () => {
     })
 
     expect(String(selected.provider)).toBe("example")
-    expect(selected.route.id).toBe("anthropic-compatible-messages")
-    expect(selected.route.protocol).toBe("anthropic-messages")
-    expect(selected.route.providerMetadataKey).toBe("example")
-    expect(selected.route.endpoint).toMatchObject({
+    expect(selected.api.id).toBe("anthropic-compatible-messages")
+    expect(selected.api.protocol).toBe("anthropic-messages")
+    expect(selected.api.providerMetadataKey).toBe("example")
+    expect(selected.api.endpoint).toMatchObject({
       baseURL: "https://messages.example.test/v1",
     })
     expect(
-      Endpoint.render(selected.route.endpoint, {
+      Endpoint.render(selected.api.endpoint, {
         request: ai.request({ model: selected, prompt: "Hello" }),
         body: {},
       }).toString(),
@@ -323,7 +323,7 @@ describe("provider package entrypoints", () => {
       thinking: { type: "adaptive" },
     })
 
-    expect(selected.route.id).toBe("anthropic-messages")
+    expect(selected.api.id).toBe("anthropic-messages")
     expect(selected.options?.providerOptions).toEqual({ thinking: { type: "adaptive" } })
   })
 
@@ -382,12 +382,12 @@ describe("provider package entrypoints", () => {
     const responses = AzureResponses.model("deployment", settings)
     const chat = AzureChat.model("deployment", settings)
 
-    expect(Azure.model("deployment", settings).route.id).toBe("azure-openai-responses")
-    expect(responses.route.id).toBe("azure-openai-responses")
-    expect(responses.route.endpoint.baseURL).toBe("https://opencode-test.openai.azure.com/openai/v1")
+    expect(Azure.model("deployment", settings).api.id).toBe("azure-openai-responses")
+    expect(responses.api.id).toBe("azure-openai-responses")
+    expect(responses.baseURL).toBe("https://opencode-test.openai.azure.com/openai/v1")
     expect(responses.options?.headers).toEqual({ "x-application": "opencode" })
     expect(responses.options?.http?.body).toEqual({ service_tier: "priority" })
-    expect(chat.route.id).toBe("azure-openai-chat")
+    expect(chat.api.id).toBe("azure-openai-chat")
   })
 
   test("constructs Azure deployment URLs and preserves custom gateway URLs", async () => {
@@ -403,12 +403,12 @@ describe("provider package entrypoints", () => {
       baseURL: "https://gateway.example/azure/",
     })
 
-    expect(deployment.route.endpoint).toMatchObject({
+    expect(deployment.api.endpoint).toMatchObject({
       baseURL: "https://opencode-test.openai.azure.com/openai/deployments/custom-deployment",
       query: { "api-version": "2025-01-01-preview" },
     })
-    expect(gateway.route.endpoint.baseURL).toBe("https://gateway.example/azure")
-    expect(gateway.route.endpoint.query).toBeUndefined()
+    expect(gateway.baseURL).toBe("https://gateway.example/azure")
+    expect(gateway.api.endpoint.query).toBeUndefined()
   })
 
   test("maps Google package settings onto the Gemini model", async () => {
@@ -422,8 +422,8 @@ describe("provider package entrypoints", () => {
       thinkingConfig: { thinkingBudget: 1_024 },
     })
 
-    expect(selected.route.id).toBe("gemini")
-    expect(selected.route.endpoint.baseURL).toBe("https://generativelanguage.test/v1beta")
+    expect(selected.api.id).toBe("gemini")
+    expect(selected.baseURL).toBe("https://generativelanguage.test/v1beta")
     expect(selected.options?.headers).toEqual({ "x-application": "opencode" })
     expect(selected.options?.http?.body).toEqual({ safetySettings: [] })
     expect(selected.options?.providerOptions).toEqual({ thinkingConfig: { thinkingBudget: 1_024 } })
@@ -433,10 +433,10 @@ describe("provider package entrypoints", () => {
       thinkingLevel: "low",
       store: true,
     })
-    expect(interactions.route.id).toBe("google-interactions")
-    expect(interactions.route.endpoint.baseURL).toBe("https://generativelanguage.test/v1beta")
+    expect(interactions.api.id).toBe("google-interactions")
+    expect(interactions.baseURL).toBe("https://generativelanguage.test/v1beta")
     expect(interactions.options?.providerOptions).toEqual({ thinkingLevel: "low", store: true })
-    expect(Google.configure().interactions("gemini-3.8-flash").route.protocol).toBe("google-interactions")
+    expect(Google.configure().interactions("gemini-3.8-flash").api.protocol).toBe("google-interactions")
   })
 
   test("selects Vertex entrypoints with the same model contract", async () => {
@@ -465,9 +465,9 @@ describe("provider package entrypoints", () => {
       project: "vertex-project",
     })
 
-    expect(gemini.route.id).toBe("google-vertex-gemini")
-    expect(gemini.route.protocol).toBe("gemini")
-    expect(gemini.route.endpoint.baseURL).toBe("https://aiplatform.googleapis.com/v1/publishers/google")
+    expect(gemini.api.id).toBe("google-vertex-gemini")
+    expect(gemini.api.protocol).toBe("gemini")
+    expect(gemini.baseURL).toBe("https://aiplatform.googleapis.com/v1/publishers/google")
     expect(gemini.options?.headers).toEqual({ "x-application": "opencode" })
     expect(gemini.options?.http?.body).toEqual({ safetySettings: [] })
     expect(
@@ -475,22 +475,22 @@ describe("provider package entrypoints", () => {
         accessToken: "fixture",
         location: "eu",
         project: "vertex-project",
-      }).route.endpoint.baseURL,
+      }).baseURL,
     ).toBe("https://aiplatform.eu.rep.googleapis.com/v1beta1/projects/vertex-project/locations/eu/publishers/google")
-    expect(messages.route.id).toBe("google-vertex-messages")
-    expect(messages.route.protocol).toBe("anthropic-messages")
-    expect(messages.route.endpoint.baseURL).toBe(
+    expect(messages.api.id).toBe("google-vertex-messages")
+    expect(messages.api.protocol).toBe("anthropic-messages")
+    expect(messages.baseURL).toBe(
       "https://aiplatform.googleapis.com/v1/projects/vertex-project/locations/global/publishers/anthropic/models",
     )
-    expect(chat.route.id).toBe("google-vertex-chat")
-    expect(chat.route.protocol).toBe("openai-chat")
-    expect(chat.route.endpoint).toMatchObject({
+    expect(chat.api.id).toBe("google-vertex-chat")
+    expect(chat.api.protocol).toBe("openai-chat")
+    expect(chat.api.endpoint).toMatchObject({
       baseURL: "https://aiplatform.googleapis.com/v1/projects/vertex-project/locations/global/endpoints/openapi",
       path: "/chat/completions",
     })
-    expect(responses.route.id).toBe("google-vertex-responses")
-    expect(responses.route.protocol).toBe("open-responses")
-    expect(responses.route.endpoint).toMatchObject({
+    expect(responses.api.id).toBe("google-vertex-responses")
+    expect(responses.api.protocol).toBe("open-responses")
+    expect(responses.api.endpoint).toMatchObject({
       baseURL: "https://aiplatform.googleapis.com/v1/projects/vertex-project/locations/global/endpoints/openapi",
       path: "/responses",
     })
@@ -511,9 +511,9 @@ describe("provider package entrypoints", () => {
       thinkingLevel: "low",
       store: false,
     })
-    expect(selected.route.id).toBe("google-vertex-interactions")
-    expect(selected.route.protocol).toBe("google-interactions")
-    expect(selected.route.endpoint).toMatchObject({
+    expect(selected.api.id).toBe("google-vertex-interactions")
+    expect(selected.api.protocol).toBe("google-interactions")
+    expect(selected.api.endpoint).toMatchObject({
       baseURL: "https://aiplatform.googleapis.com/v1beta1/projects/vertex-project/locations/global",
       path: "/interactions",
       query: { alt: "sse" },

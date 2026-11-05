@@ -28,9 +28,9 @@ describe("DigitalOcean", () => {
       expect(model).toMatchObject({
         id: "anthropic-claude-fable-5.1",
         provider: "digitalocean",
-        route: { id: "digitalocean" },
+        api: { id: "digitalocean" },
       })
-      expect(model.route.endpoint.baseURL).toBe("https://inference.do-ai.run/v1")
+      expect(model.baseURL).toBe("https://inference.do-ai.run/v1")
 
       const prepared = yield* compileRequest(ai.request({ model, prompt: "Say hello.", cache: "none" }))
 

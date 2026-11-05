@@ -27,15 +27,15 @@ it.effect("ZAI owns standard and Coding Plan endpoints and bearer credentials", 
     ]) {
       const request = ai.request({ model: item.model, prompt: "Hello" })
       const compiled = yield* compileRequest(request)
-      const url = Endpoint.render(item.model.route.endpoint, { request, body: compiled.body }).toString()
+      const url = Endpoint.render(item.model.api.endpoint, { request, body: compiled.body }).toString()
       expect(url).toBe(`https://api.z.ai/api${item.path}`)
       expect(item.model.provider).toBe(item.provider)
-      expect(item.model.route.providerMetadataKey).toBe("zai")
+      expect(item.model.api.providerMetadataKey).toBe("zai")
       expect(compiled.body.thinking).toBeUndefined()
       expect(compiled.body.reasoning_effort).toBeUndefined()
       expect(compiled.body.reasoning).toBeUndefined()
       expect(compiled.body.output_config).toBeUndefined()
-      const headers = yield* item.model.route.auth.apply({
+      const headers = yield* item.model.auth.apply({
         request,
         method: "POST",
         url,
@@ -235,7 +235,7 @@ it.effect("ZAI rejects invalid typed thinking options before execution", () =>
   Effect.gen(function* () {
     const model = ZAI.configure({ apiKey: "fixture" })
       .chat("glm-5.3")
-      .route.with({ providerOptions: { thinking: { clear_thinking: "false" } } })
+      .api.with({ providerOptions: { thinking: { clear_thinking: "false" } } })
       .model({ id: "glm-5.3" })
     const error = yield* compileRequest(ai.request({ model, prompt: "Hello" })).pipe(Effect.flip)
     expect(error.reason._tag).toBe("InvalidRequest")

@@ -7,11 +7,11 @@ import {
   DecisionClient,
   Generation,
   ImageClient,
-  LanguageModel,
   LLMClient,
   LLMEvent,
   Media,
   RawEvent,
+  Model,
 } from "@opencode/ai/effect"
 import { AI } from "@opencode/ai"
 import { Speech, SpeechClient, SpeechEvent, TranscriptionClient, Video, VideoClient } from "@opencode/ai/experimental"
@@ -71,7 +71,7 @@ describe("public exports", () => {
     expect(LLMClient.Service).toBeFunction()
     expect(LLMClient.layer).toBeDefined()
     expect(AIError).toBeFunction()
-    expect(LanguageModel.make).toBeFunction()
+    expect(Model.make).toBeFunction()
     expect(Media.bytes).toBeFunction()
     expect(ai.image.generate).toBeFunction()
     expect(Video.start).toBeFunction()
@@ -137,9 +137,9 @@ describe("public exports", () => {
     for (const name of ["baseten", "cerebras", "deepinfra", "deepseek", "fireworks", "groq", "togetherai"]) {
       expect(OpenAICompatible).not.toHaveProperty(name)
     }
-    expect(
-      OpenAICompatibleResponses.configure({ baseURL: "https://responses.test/v1" }).model("fixture").route.id,
-    ).toBe("openai-compatible-responses")
+    expect(OpenAICompatibleResponses.configure({ baseURL: "https://responses.test/v1" }).model("fixture").api.id).toBe(
+      "openai-compatible-responses",
+    )
     expect(CloudflareAIGateway.configure).toBeFunction()
     expect(CloudflareAIGateway.configure({ accountId: "fixture", gatewayApiKey: "fixture" }).model).toBeFunction()
     expect(CloudflareWorkersAI.configure).toBeFunction()
@@ -148,58 +148,56 @@ describe("public exports", () => {
     expect(OpenRouter.decision).toBeFunction()
     expect(TypeSafeAI.decision).toBeFunction()
     expect(OpenCode.decision).toBeFunction()
-    expect(VercelAIGateway.decision("typesafe-ai/jev").route.id).toBe("openai-decisions")
+    expect(VercelAIGateway.decision("typesafe-ai/jev").api.id).toBe("openai-decisions")
     expect(Baseten.decision).toBeFunction()
     expect(DigitalOcean.decision).toBeFunction()
-    expect(OpenAI.decision("gpt-6-luna").route.id).toBe("openai-decisions")
+    expect(OpenAI.decision("gpt-6-luna").api.id).toBe("openai-decisions")
     expect(XAI.model).toBeFunction()
     expect(XAI.provider.responses).toBe(XAI.responses)
     expect(XAI.provider.chat).toBe(XAI.chat)
-    expect(XAI.configure({ apiKey: "fixture" }).responses("grok-4.3").route.id).toBe("xai-responses")
-    expect(XAI.configure({ apiKey: "fixture" }).chat("grok-4.3").route.id).toBe("xai-chat")
-    expect(OpenAI.configure({ apiKey: "fixture" }).image("gpt-image-2").route.id).toBe("openai-images")
+    expect(XAI.configure({ apiKey: "fixture" }).responses("grok-4.3").api.id).toBe("xai-responses")
+    expect(XAI.configure({ apiKey: "fixture" }).chat("grok-4.3").api.id).toBe("xai-chat")
+    expect(OpenAI.configure({ apiKey: "fixture" }).image("gpt-image-2").api.id).toBe("openai-images")
     expect(OpenAI.provider.image).toBe(OpenAI.image)
-    expect(Google.configure({ apiKey: "fixture" }).image("imagen-4.0-generate-001").route.id).toBe("google-images")
+    expect(Google.configure({ apiKey: "fixture" }).image("imagen-4.0-generate-001").api.id).toBe("google-images")
     expect(Google.provider.image).toBe(Google.image)
-    expect(XAI.configure({ apiKey: "fixture" }).image("grok-imagine-image").route.id).toBe("xai-images")
+    expect(XAI.configure({ apiKey: "fixture" }).image("grok-imagine-image").api.id).toBe("xai-images")
     expect(XAI.provider.image).toBe(XAI.image)
-    expect(Meta.configure({ apiKey: "fixture" }).image("muse-image").route.id).toBe("meta-images")
+    expect(Meta.configure({ apiKey: "fixture" }).image("muse-image").api.id).toBe("meta-images")
     expect(Meta.provider.image).toBe(Meta.image)
-    expect(ZAI.configure({ apiKey: "fixture" }).image("glm-image").route.id).toBe("zai-images")
+    expect(ZAI.configure({ apiKey: "fixture" }).image("glm-image").api.id).toBe("zai-images")
     expect(ZAI.provider.image).toBe(ZAI.image)
-    expect(MiniMax.configure({ apiKey: "fixture" }).image("image-01").route.id).toBe("minimax-images")
+    expect(MiniMax.configure({ apiKey: "fixture" }).image("image-01").api.id).toBe("minimax-images")
     expect(MiniMax.provider.image).toBe(MiniMax.image)
-    expect(Alibaba.configure({ region: "ap-southeast-1", apiKey: "fixture" }).image("qwen-image-2.0").route.id).toBe(
+    expect(Alibaba.configure({ region: "ap-southeast-1", apiKey: "fixture" }).image("qwen-image-2.0").api.id).toBe(
       "alibaba-images",
     )
-    expect(VercelAIGateway.configure({ apiKey: "fixture" }).image("meta/muse-image-1.0").route.id).toBe("openai-images")
+    expect(VercelAIGateway.configure({ apiKey: "fixture" }).image("meta/muse-image-1.0").api.id).toBe("openai-images")
     expect(VercelAIGateway.provider.image).toBe(VercelAIGateway.image)
     expect(
       CloudflareWorkersAI.configure({ accountId: "fixture", apiKey: "fixture" }).image(
         "@cf/black-forest-labs/flux-1-schnell",
-      ).route.id,
+      ).api.id,
     ).toBe("cloudflare-workers-ai-images")
-    expect(XAI.configure({ apiKey: "fixture" }).video("grok-imagine-video-1.5").route.id).toBe("xai-video")
+    expect(XAI.configure({ apiKey: "fixture" }).video("grok-imagine-video-1.5").api.id).toBe("xai-video")
     expect(XAI.provider.video).toBe(XAI.video)
-    expect(Google.configure({ apiKey: "fixture" }).video("veo-3.1-generate-preview").route.id).toBe("google-video")
+    expect(Google.configure({ apiKey: "fixture" }).video("veo-3.1-generate-preview").api.id).toBe("google-video")
     expect(Google.provider.video).toBe(Google.video)
-    expect(Runway.configure({ apiKey: "fixture" }).video("gen4.5").route.id).toBe("runway-video")
+    expect(Runway.configure({ apiKey: "fixture" }).video("gen4.5").api.id).toBe("runway-video")
     expect(Runway.provider.video).toBe(Runway.video)
-    expect(OpenAI.configure({ apiKey: "fixture" }).speech("gpt-4o-mini-tts").route.id).toBe("openai-speech")
-    expect(Google.configure({ apiKey: "fixture" }).speech("gemini-2.5-flash-preview-tts").route.id).toBe(
-      "google-speech",
-    )
-    expect(ElevenLabs.configure({ apiKey: "fixture" }).speech("eleven_flash_v2_5").route.id).toBe("elevenlabs-speech")
-    expect(Cartesia.configure({ apiKey: "fixture" }).speech("sonic-3").route.id).toBe("cartesia-speech")
-    expect(Deepgram.configure({ apiKey: "fixture" }).speech("aura-2-thalia-en").route.id).toBe("deepgram-speech")
-    expect(OpenAI.configure({ apiKey: "fixture" }).transcription("gpt-transcribe").route.kind).toBe("stream")
-    expect(Google.configure({ apiKey: "fixture" }).transcription("gemini-3.5-transcribe").route.kind).toBe("stream")
-    expect(Deepgram.configure({ apiKey: "fixture" }).transcription("nova-3").route.kind).toBe("inline")
-    expect(AssemblyAI.configure({ apiKey: "fixture" }).transcription("universal-3-5-pro").route.kind).toBe("queued")
-    expect(ElevenLabs.configure({ apiKey: "fixture" }).transcription("scribe_v2").route.id).toBe(
+    expect(OpenAI.configure({ apiKey: "fixture" }).speech("gpt-4o-mini-tts").api.id).toBe("openai-speech")
+    expect(Google.configure({ apiKey: "fixture" }).speech("gemini-2.5-flash-preview-tts").api.id).toBe("google-speech")
+    expect(ElevenLabs.configure({ apiKey: "fixture" }).speech("eleven_flash_v2_5").api.id).toBe("elevenlabs-speech")
+    expect(Cartesia.configure({ apiKey: "fixture" }).speech("sonic-3").api.id).toBe("cartesia-speech")
+    expect(Deepgram.configure({ apiKey: "fixture" }).speech("aura-2-thalia-en").api.id).toBe("deepgram-speech")
+    expect(OpenAI.configure({ apiKey: "fixture" }).transcription("gpt-transcribe").api.kind).toBe("stream")
+    expect(Google.configure({ apiKey: "fixture" }).transcription("gemini-3.5-transcribe").api.kind).toBe("stream")
+    expect(Deepgram.configure({ apiKey: "fixture" }).transcription("nova-3").api.kind).toBe("inline")
+    expect(AssemblyAI.configure({ apiKey: "fixture" }).transcription("universal-3-5-pro").api.kind).toBe("queued")
+    expect(ElevenLabs.configure({ apiKey: "fixture" }).transcription("scribe_v2").api.id).toBe(
       "elevenlabs-transcription",
     )
-    expect(ElevenLabs.configure({ apiKey: "fixture" }).transcription("scribe_v2").route.kind).toBe("inline")
+    expect(ElevenLabs.configure({ apiKey: "fixture" }).transcription("scribe_v2").api.kind).toBe("inline")
     expect(ElevenLabs.provider.transcription).toBe(ElevenLabs.transcription)
   })
 

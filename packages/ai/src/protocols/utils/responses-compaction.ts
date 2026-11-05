@@ -10,7 +10,7 @@ import {
   type TextPart,
   mergeJsonRecords,
 } from "../../schema/index.js"
-import type { CompactOperation } from "../../route/client.js"
+import { modelRoute, type CompactOperation } from "../../route/client.js"
 import { stripEffortUpdates } from "../../effort-updates.js"
 import { Endpoint } from "../../route/endpoint.js"
 import { RequestExecutor } from "../../route/executor.js"
@@ -85,7 +85,7 @@ export const make = (
   lowerTools: (request: LLMRequest) => Effect.Effect<ReadonlyArray<Record<string, unknown>>, AIError>,
 ): CompactOperation =>
   Effect.fn("ResponsesCompaction.execute")(function* (request, executor, options) {
-    const route = request.model.route
+    const route = modelRoute(request.model)
     // The standalone compaction endpoint rejects histories containing configuration updates.
     const native = yield* OpenResponses.lowerConversation(stripEffortUpdates(request), adapter)
     const generation = OpenResponses.lowerGeneration(request)

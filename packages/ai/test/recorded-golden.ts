@@ -1,7 +1,7 @@
 import type { HttpRecorder } from "@opencode/http-recorder"
 import { describe } from "bun:test"
 import { Effect } from "effect"
-import type { LanguageModel } from "../src/effect.js"
+import type { Model } from "../src/effect.js"
 import {
   goldenScenarioTags,
   goldenScenarioTitle,
@@ -28,7 +28,7 @@ type ScenarioInput =
 
 type TargetInput = {
   readonly name: string
-  readonly model: LanguageModel
+  readonly model: Model<"chat">
   readonly protocol?: string
   readonly requires?: ReadonlyArray<string>
   readonly transport?: Transport
@@ -44,13 +44,13 @@ const scenarioInput = (input: ScenarioInput) => (typeof input === "string" ? { i
 const defaultPrefix = (target: TargetInput) => {
   if (target.prefix) return target.prefix
   const transport = target.transport === "websocket" ? "-websocket" : ""
-  return `${target.model.provider}-${target.protocol ?? target.model.route.id}${transport}`
+  return `${target.model.provider}-${target.protocol ?? target.model.api.id}${transport}`
 }
 
 const metadata = (target: TargetInput) => ({
   provider: target.model.provider,
   ...(target.protocol ? { protocol: target.protocol } : {}),
-  route: target.model.route.id,
+  route: target.model.api.id,
   transport: target.transport ?? "http",
   model: target.model.id,
   ...target.metadata,

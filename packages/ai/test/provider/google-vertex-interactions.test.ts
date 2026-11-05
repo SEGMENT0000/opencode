@@ -135,11 +135,9 @@ describe("Google Vertex Interactions", () => {
     const model = GoogleVertexInteractions.configure({ project: "vertex-project", location: "eu" }).model(
       "gemini-3.8-flash",
     )
-    expect(model.route.endpoint.baseURL).toBe(
-      "https://aiplatform.eu.rep.googleapis.com/v1beta1/projects/vertex-project/locations/eu",
-    )
+    expect(model.baseURL).toBe("https://aiplatform.eu.rep.googleapis.com/v1beta1/projects/vertex-project/locations/eu")
     expect(model.provider).toBe("google-vertex")
-    expect(model.route.protocol).toBe("google-interactions")
+    expect(model.api.protocol).toBe("google-interactions")
   })
 
   test("rejects conflicting credentials", () => {
@@ -264,9 +262,7 @@ describe("Google Vertex Interactions", () => {
         ai.request({
           model,
           messages: [
-            Message.assistant([
-              ToolCallPart.make({ id: "call_foreign", name: "lookup", input: { city: "Paris" } }),
-            ]),
+            Message.assistant([ToolCallPart.make({ id: "call_foreign", name: "lookup", input: { city: "Paris" } })]),
             Message.tool({ id: "call_foreign", name: "lookup", result: { weather: "sunny" } }),
             Message.assistant([
               ToolCallPart.make({

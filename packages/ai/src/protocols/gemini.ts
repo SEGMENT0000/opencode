@@ -315,7 +315,7 @@ const lowerToolCall = (part: ToolCallPart, omitIds: boolean, metadataKey: string
 
 const lowerMessages = Effect.fnUntraced(function* (request: LLMRequest) {
   const contents: GeminiContent[] = []
-  const metadataKey = request.model.route.providerMetadataKey ?? request.model.provider
+  const metadataKey = request.model.api.providerMetadataKey ?? request.model.provider
   const omitCallIds = omitsFunctionCallIds(request.model.id)
   const legacyToolMedia = routesLegacyToolMedia(request.model.id)
   let pendingMedia: Array<GeminiInlineDataPart | typeof GeminiFileDataPart.Type> | undefined
@@ -823,7 +823,7 @@ export const transport: Transport<GeminiBody, Prepared, unknown> = {
   prepare: (input) => sse.prepare(input).pipe(Effect.map((http) => ({ http, input }))),
   execute: (prepared, request, runtime) =>
     Effect.gen(function* () {
-      const route = request.model.route.id
+      const route = request.model.api.id
       const label = `${request.model.provider}/${route}`
       // Frames are parsed once here, so errors recover each frame's raw text for their body.
       const raw = new WeakMap<object, string>()
@@ -899,8 +899,8 @@ export const protocol = Protocol.make({
   stream: {
     event: Schema.Union([Schema.instanceOf(NextRequest), GeminiEvent]),
     initial: (request): ParserState => ({
-      route: `${request.model.provider}/${request.model.route.id}`,
-      providerMetadataKey: request.model.route.providerMetadataKey ?? request.model.provider,
+      route: `${request.model.provider}/${request.model.api.id}`,
+      providerMetadataKey: request.model.api.providerMetadataKey ?? request.model.provider,
       hasToolCalls: false,
       lifecycle: Lifecycle.initial(),
       nextReasoningId: 0,

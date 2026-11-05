@@ -25,7 +25,7 @@ it.effect("Gateway defaults preserve full model IDs and select the requested fam
       const model = gateway.model(id)
       expect(model.id).toBe(id)
       expect(model.provider).toBe("vercel-ai-gateway")
-      expect(model.route.endpoint.path).toBe(path)
+      expect(model.api.endpoint.path).toBe(path)
       const compiled = yield* compileRequest(ai.request({ model, prompt: "Hello" }))
       expect(compiled.body.model).toBe(id)
       expect(compiled.body.providerOptions).toBeUndefined()

@@ -60,7 +60,7 @@ const adapter = {
 } satisfies OpenResponses.ProviderAdapter
 
 const fromRequest = Effect.fn("MetaResponses.fromRequest")(function* (request: LLMRequest) {
-  const key = request.model.route.providerMetadataKey ?? String(request.model.provider)
+  const key = request.model.api.providerMetadataKey ?? String(request.model.provider)
   const body = yield* OpenResponses.fromRequestWithAdapter(
     {
       ...request,

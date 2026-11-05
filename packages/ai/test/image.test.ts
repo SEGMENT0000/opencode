@@ -132,7 +132,7 @@ describe("Image", () => {
   it.effect("sends only model and prompt by default and sniffs bytes when output_format is missing", () =>
     Effect.gen(function* () {
       const openai = OpenAI.configure({ apiKey: "test", baseURL: "https://openai.test/v1" })
-      expect(openai.image("gpt-image-2").route.id).toBe("openai-images")
+      expect(openai.image("gpt-image-2").api.id).toBe("openai-images")
       const response = yield* ai.image.generate({ model: openai.image("gpt-image-2"), prompt: "A lighthouse" }).pipe(
         Effect.provide(
           ImageClient.layer.pipe(

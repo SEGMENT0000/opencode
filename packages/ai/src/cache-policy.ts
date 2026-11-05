@@ -235,7 +235,7 @@ export const placesMarkers = (request: LLMRequest) => {
 // A declared cache format overrides the route allowlist and its model-ID heuristics.
 const selectPolicy = (request: LLMRequest): CachePolicyObject => {
   const format = request.model.compatibility?.cacheFormat
-  const route = request.model.route.id
+  const route = request.model.api.id
   const auto = isAuto(request.cache)
   if (format === "alibaba") return auto ? QWEN : { ...resolve(request.cache), tools: false }
   if (format === "anthropic") return resolve(request.cache)

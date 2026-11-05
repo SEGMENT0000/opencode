@@ -12,8 +12,8 @@ for (const model of [
   OpenAI.configure({ apiKey: "test-key" }).responses("example-model"),
   configure({ apiKey: "test-key", baseURL: "https://responses.example.test/v1" }).model("example-model"),
 ]) {
-  describe(`${model.route.protocol} message replay`, () => {
-    const key = model.route.providerMetadataKey ?? "openresponses"
+  describe(`${model.api.protocol} message replay`, () => {
+    const key = model.api.providerMetadataKey ?? "openresponses"
 
     it.effect("marks assistant text completed regardless of stored status", () =>
       Effect.gen(function* () {

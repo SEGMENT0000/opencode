@@ -6,7 +6,7 @@ import { AIError, UnsupportedOperationError } from "./schema/index.js"
 
 /** A media request whose model carries the route that executes it. */
 export interface RoutedRequest<Self extends MediaRoute.MediaRequest, Event, Response> extends MediaRoute.MediaRequest {
-  readonly model: MediaRoute.MediaRequest["model"] & { readonly route: MediaRoute.AnyRoute<Self, Event, Response> }
+  readonly model: MediaRoute.MediaRequest["model"] & { readonly api: MediaRoute.AnyRoute<Self, Event, Response> }
 }
 
 /** `start` and `resume` fail with `UnsupportedOperation` on inline and stream routes. */
@@ -41,23 +41,23 @@ export const make = <Self, Req extends RoutedRequest<Req, Event, Response>, Even
           }),
         })
       const start = (request: Req) => {
-        const route = request.model.route
+        const route = request.model.api
         if (route.kind !== "queued") return Effect.fail(notQueued(route, "start"))
         return route.start(request, executor.execute)
       }
       return service.of({
         start,
         resume: (model, token) => {
-          if (model.route.kind !== "queued") return Effect.fail(notQueued(model.route, "resume"))
-          return model.route.resume(model, token, executor.execute)
+          if (model.api.kind !== "queued") return Effect.fail(notQueued(model.api, "resume"))
+          return model.api.resume(model, token, executor.execute)
         },
         generate: (request, options) => {
-          const route = request.model.route
+          const route = request.model.api
           if (route.kind !== "queued") return route.generate(request, executor.execute)
           return start(request).pipe(Effect.flatMap((generation) => generation.await(options)))
         },
         stream: (request, options) => {
-          const route = request.model.route
+          const route = request.model.api
           if (route.kind === "stream") return route.stream(request, executor.execute)
           if (route.kind === "queued")
             return Stream.unwrap(

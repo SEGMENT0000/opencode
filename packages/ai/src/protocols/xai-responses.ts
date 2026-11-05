@@ -61,7 +61,7 @@ const fromRequest = Effect.fn("XAIResponses.fromRequest")(function* (request: LL
     return yield* ProviderShared.unsupportedOperation({
       operation: "in-band-compaction",
       provider: request.model.provider,
-      route: request.model.route.id,
+      route: request.model.api.id,
       message: "xAI requires explicit compaction through ai.compact; automatic context management is not supported",
     })
   const options = yield* ProviderShared.validateWith(Schema.decodeUnknownEffect(Options))(request.providerOptions ?? {})

@@ -1,6 +1,6 @@
 import { describe, expect } from "bun:test"
 import { Effect } from "effect"
-import { ai, CacheHint, LanguageModel, Message } from "../../src/effect.js"
+import { ai, CacheHint, Message, Model } from "../../src/effect.js"
 import { LLMClient } from "../../src/route.js"
 import { compileRequest } from "../../src/route/client.js"
 import * as OpenRouter from "../../src/providers/openrouter.js"
@@ -16,9 +16,9 @@ describe("OpenRouter", () => {
       expect(model).toMatchObject({
         id: "openai/gpt-4o-mini",
         provider: "openrouter",
-        route: { id: "openrouter" },
+        api: { id: "openrouter" },
       })
-      expect(model.route.endpoint.baseURL).toBe("https://openrouter.ai/api/v1")
+      expect(model.baseURL).toBe("https://openrouter.ai/api/v1")
 
       const prepared = yield* compileRequest(ai.request({ model, prompt: "Say hello." }))
 
@@ -132,7 +132,7 @@ describe("OpenRouter", () => {
       const model = OpenRouter.configure({ apiKey: "test-key" }).model("vendor/claude-proxy")
       const prepared = yield* compileRequest(
         ai.request({
-          model: LanguageModel.update(model, { compatibility: { cacheFormat: "anthropic" } }),
+          model: { ...model, compatibility: { cacheFormat: "anthropic" } },
           system: "Base agent",
           tools: [{ name: "lookup", description: "Lookup", inputSchema: { type: "object", properties: {} } }],
           prompt: "Hello",

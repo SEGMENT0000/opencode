@@ -3,11 +3,11 @@ import { Effect, Schema, Stream } from "effect"
 import { ai, LLMResponse } from "../src/effect.js"
 import { Route, Endpoint, LLMClient, Protocol, type Framing } from "../src/route.js"
 import { compileRequest } from "../src/route/client.js"
-import { LanguageModel } from "../src/schema/index.js"
+import { Model } from "../src/schema/index.js"
 import { testEffect } from "./lib/effect.js"
 import { dynamicResponse } from "./lib/http.js"
 
-const updateModel = (model: LanguageModel, patch: Partial<LanguageModel.Input>) => LanguageModel.update(model, patch)
+const updateModel = (model: Model<"chat">, patch: Partial<Model.Input<"chat">>) => ({ ...model, ...patch })
 
 const Json = Schema.fromJsonString(Schema.Unknown)
 const encodeJson = Schema.encodeSync(Json)
@@ -86,11 +86,7 @@ const configuredGemini = gemini.with({ endpoint: { baseURL: "https://fake.local"
 
 const request = ai.request({
   id: "req_1",
-  model: LanguageModel.make({
-    id: "fake-model",
-    provider: "fake-provider",
-    route: configuredFake,
-  }),
+  model: Model.make({ type: "chat", id: "fake-model", provider: "fake-provider", api: configuredFake }),
   prompt: "hello",
 })
 
@@ -142,7 +138,7 @@ describe("llm route", () => {
     Effect.gen(function* () {
       const prepared = yield* compileRequest({
         ...request,
-        model: updateModel(request.model, { route: configuredGemini }),
+        model: updateModel(request.model, { api: configuredGemini }),
       })
 
       expect(prepared.route).toBe("gemini-fake")
@@ -172,7 +168,7 @@ describe("llm route", () => {
         framing: fakeFraming,
       })
 
-      const prepared = yield* compileRequest({ ...request, model: updateModel(request.model, { route: duplicate }) })
+      const prepared = yield* compileRequest({ ...request, model: updateModel(request.model, { api: duplicate }) })
 
       expect(prepared.body).toEqual({ body: "late-default" })
     }),

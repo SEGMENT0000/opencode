@@ -16,17 +16,17 @@ it.effect("Meta composes baseline protocols with provider-owned endpoints and de
     const meta = Meta.configure({ apiKey: "fixture" })
     const responses = meta.model("muse-spark-1.3")
     const chat = meta.chat("muse-spark-1.3")
-    expect(responses.route.body).toBe(MetaResponses.protocol.body)
+    expect(responses.api.body).toBe(MetaResponses.protocol.body)
     expect(MetaResponses.protocol.stream.event).toBe(OpenResponses.protocol.stream.event)
-    expect(chat.route.body).toBe(OpenAIChat.protocol.body)
+    expect(chat.api.body).toBe(OpenAIChat.protocol.body)
     expect(meta.model).toBe(meta.responses)
     for (const model of [responses, chat]) {
       expect(model.provider).toBe("meta")
-      expect(model.route.providerMetadataKey).toBe("meta")
-      expect(model.route.endpoint.baseURL).toBe("https://api.meta.ai/v1")
+      expect(model.api.providerMetadataKey).toBe("meta")
+      expect(model.baseURL).toBe("https://api.meta.ai/v1")
     }
-    expect(responses.route.endpoint.path).toBe("/responses")
-    expect(chat.route.endpoint.path).toBe("/chat/completions")
+    expect(responses.api.endpoint.path).toBe("/responses")
+    expect(chat.api.endpoint.path).toBe("/chat/completions")
     const compiled = yield* compileRequest(ai.request({ model: responses, prompt: "Hello" }))
     expect(compiled.protocol).toBe("meta-responses")
     expect(compiled.body).toMatchObject({ store: false, include: ["reasoning.encrypted_content"] })
@@ -89,7 +89,7 @@ it.effect("Meta package selectors preserve overrides and Chat token policy on cu
         body: { custom: "value" },
         reasoningEffort: "future-effort",
       })
-      expect(model.route.endpoint.baseURL).toBe("https://gateway.example/v1")
+      expect(model.baseURL).toBe("https://gateway.example/v1")
       expect(model.options?.headers).toEqual({ "x-client": "test" })
       expect(model.options?.http?.body).toEqual({ custom: "value" })
       const compiled = yield* compileRequest(
@@ -126,7 +126,7 @@ it.effect("Meta resolves environment credentials and accepts explicit auth overr
         { provider: Meta.configure({ auth: Auth.none }), authorization: undefined },
       ]) {
         const model = scenario.provider[api]("muse-spark-1.3")
-        const headers = yield* model.route.auth.apply({
+        const headers = yield* model.auth.apply({
           request: ai.request({ model, prompt: "Hello" }),
           method: "POST",
           url: "https://api.meta.ai/v1/responses",

@@ -6,13 +6,13 @@ import * as OpenAIChat from "../src/protocols/openai-chat.js"
 import * as OpenAIResponses from "../src/protocols/openai-responses.js"
 import {
   Message,
-  LanguageModel,
   SystemMessage,
   ToolCallPart,
   ToolChoice,
   ToolDefinition,
   ToolResultPart,
   UserMessage,
+  Model,
 } from "../src/schema/index.js"
 import { fixedResponse } from "./lib/http.js"
 import { sseEvents } from "./lib/sse.js"
@@ -23,7 +23,7 @@ const responsesRoute = OpenAIResponses.route
 describe("llm constructors", () => {
   test("normalizes recursive tool namespaces", () => {
     const request = ai.request({
-      model: LanguageModel.make({ id: "fake-model", provider: "fake", route: responsesRoute }),
+      model: Model.make({ type: "chat", id: "fake-model", provider: "fake", api: responsesRoute }),
       prompt: "Hello",
       tools: [
         {
@@ -71,13 +71,13 @@ describe("llm constructors", () => {
   test("normalizes ergonomic input into a plain request", () => {
     const request = ai.request({
       id: "req_1",
-      model: LanguageModel.make({ id: "fake-model", provider: "fake", route: chatRoute }),
+      model: Model.make({ type: "chat", id: "fake-model", provider: "fake", api: chatRoute }),
       system: "You are concise.",
       prompt: "Say hello.",
     })
 
     expect(Object.getPrototypeOf(request)).toBe(Object.prototype)
-    expect(request.model).toBeInstanceOf(LanguageModel)
+    expect(request.model.type).toBe("chat")
     expect(request.messages[0]).toBeInstanceOf(UserMessage)
     expect(request.system).toEqual([{ type: "text", text: "You are concise." }])
     expect(request.messages[0]?.content).toEqual([{ type: "text", text: "Say hello." }])
@@ -88,7 +88,7 @@ describe("llm constructors", () => {
   test("edits requests with a spread or by passing them back to ai.request", () => {
     const base = ai.request({
       id: "req_1",
-      model: LanguageModel.make({ id: "fake-model", provider: "fake", route: chatRoute }),
+      model: Model.make({ type: "chat", id: "fake-model", provider: "fake", api: chatRoute }),
       prompt: "Say hello.",
     })
     const updated = {
@@ -128,10 +128,11 @@ describe("llm constructors", () => {
 
   test("keeps request options separate from route defaults", () => {
     const request = ai.request({
-      model: LanguageModel.make({
+      model: Model.make({
+        type: "chat",
         id: "fake-model",
         provider: "fake",
-        route: chatRoute.with({
+        api: chatRoute.with({
           maxTokens: 100,
           temperature: 1,
           providerOptions: { store: false, metadata: { model: true } },
@@ -152,28 +153,20 @@ describe("llm constructors", () => {
     expect(request.http).toEqual({ body: { metadata: { request: true } }, query: { request: "1" } })
   })
 
-  test("updates canonical models from the model datatype", () => {
-    const base = LanguageModel.make({
-      id: "fake-model",
-      provider: "fake",
-      route: chatRoute,
-    })
-    const updated = LanguageModel.update(base, {
-      route: responsesRoute,
+  test("edits models with a spread", () => {
+    const base = Model.make({ type: "chat", id: "fake-model", provider: "fake", api: chatRoute })
+    const updated = {
+      ...base,
+      api: responsesRoute,
       options: { maxTokens: 20 },
       compatibility: { sanitizer: "gemini", requireFinishReason: false },
-    })
-    const updatedInput = LanguageModel.input(updated)
+    } satisfies Model<"chat">
 
-    expect(updated).toBeInstanceOf(LanguageModel)
     expect(String(updated.id)).toBe("fake-model")
-    expect(updated.route).toBe(responsesRoute)
+    expect(updated.api).toBe(responsesRoute)
     expect(updated.options?.maxTokens).toBe(20)
     expect(updated.compatibility).toEqual({ sanitizer: "gemini", requireFinishReason: false })
-    expect(updatedInput.options).toBe(updated.options)
-    expect(updatedInput.compatibility).toBe(updated.compatibility)
-    expect(String(updatedInput.provider)).toBe("fake")
-    expect(LanguageModel.update(updated, {})).toBe(updated)
+    expect(String(updated.provider)).toBe("fake")
   })
 
   test("carries model defaults and compatibility through route model selection", () => {
@@ -213,11 +206,7 @@ describe("llm constructors", () => {
     expect(ToolChoice.make("required")).toEqual(new ToolChoice({ type: "required" }))
     expect(
       ai.request({
-        model: LanguageModel.make({
-          id: "fake-model",
-          provider: "fake",
-          route: chatRoute,
-        }),
+        model: Model.make({ type: "chat", id: "fake-model", provider: "fake", api: chatRoute }),
         prompt: "Use tools if needed.",
         toolChoice: "required",
       }).toolChoice,
@@ -239,7 +228,7 @@ describe("llm constructors", () => {
       { type: "text", text: "Use parameterized SQL.", cache: new CacheHint({ type: "ephemeral" }) },
     ])
     const request = ai.request({
-      model: LanguageModel.make({ id: "fake-model", provider: "fake", route: chatRoute }),
+      model: Model.make({ type: "chat", id: "fake-model", provider: "fake", api: chatRoute }),
       system: "Initial operator prompt.",
       messages: [Message.user("Review this."), update],
     })

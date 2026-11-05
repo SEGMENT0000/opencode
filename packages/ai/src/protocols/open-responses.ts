@@ -921,7 +921,7 @@ const mapFinishReason = (event: Event, hasFunctionCall: boolean): FinishReason =
   return hasFunctionCall ? "tool-calls" : "unknown"
 }
 
-export const metadataKey = (model: LLMRequest["model"]) => model.route.providerMetadataKey ?? "openresponses"
+export const metadataKey = (model: LLMRequest["model"]) => model.api.providerMetadataKey ?? "openresponses"
 
 export const providerMetadata = (state: ParserState, metadata: Record<string, unknown>): ProviderMetadata => ({
   [state.providerMetadataKey]: metadata,

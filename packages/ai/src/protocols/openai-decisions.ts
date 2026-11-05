@@ -91,7 +91,7 @@ const inputPart = (request: DecisionRequest, part: DecisionPart): Effect.Effect<
         reason: new UnsupportedOperationError({
           operation: "decision.media",
           provider: request.model.provider,
-          route: request.model.route.id,
+          route: request.model.api.id,
           message: `${NAME} takes images only; got ${part.media.kind} media`,
         }),
       }),

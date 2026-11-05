@@ -39,16 +39,12 @@ describe("Cloudflare", () => {
       )
 
       expect(responses.route).toBe("cloudflare-ai-gateway-responses")
-      expect(responses.model.route.endpoint.baseURL).toBe(
-        "https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/openai",
-      )
+      expect(responses.model.baseURL).toBe("https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/openai")
       expect(responses.body).toMatchObject({ model: "gpt-5.4", stream: true })
       expect(messages.route).toBe("cloudflare-ai-gateway-messages")
-      expect(messages.model.route.endpoint.baseURL).toBe(
-        "https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/anthropic/v1",
-      )
+      expect(messages.model.baseURL).toBe("https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/anthropic/v1")
       expect(messages.body).toMatchObject({ model: "claude-haiku-4-5" })
-      expect(chat.model.route.endpoint.baseURL).toBe("https://api.cloudflare.com/client/v4/accounts/test-account/ai/v1")
+      expect(chat.model.baseURL).toBe("https://api.cloudflare.com/client/v4/accounts/test-account/ai/v1")
       expect(chat.route).toBe("cloudflare-ai-gateway-chat")
       expect(chat.body).toMatchObject({ model: "xai/grok-4.6", stream: true })
       expect(workers.route).toBe("cloudflare-ai-gateway-chat")
@@ -224,7 +220,7 @@ describe("Cloudflare", () => {
         }),
       )
 
-      expect(prepared.model.route.endpoint.baseURL).toBe("https://gateway.proxy.test/v1")
+      expect(prepared.model.baseURL).toBe("https://gateway.proxy.test/v1")
       expect(prepared.body).toMatchObject({ model: "anthropic/claude-sonnet-4.6" })
     }),
   )
@@ -239,9 +235,9 @@ describe("Cloudflare", () => {
       expect(model).toMatchObject({
         id: "@cf/meta/llama-3.1-8b-instruct",
         provider: "cloudflare-workers-ai",
-        route: { id: "cloudflare-workers-ai" },
+        api: { id: "cloudflare-workers-ai" },
       })
-      expect(model.route.endpoint.baseURL).toBe("https://api.cloudflare.com/client/v4/accounts/test-account/ai/v1")
+      expect(model.baseURL).toBe("https://api.cloudflare.com/client/v4/accounts/test-account/ai/v1")
 
       const prepared = yield* compileRequest(ai.request({ model, prompt: "Say hello." }))
 

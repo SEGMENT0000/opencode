@@ -74,7 +74,7 @@ describe("native OpenAI-compatible providers", () => {
       [XAI.configure({ apiKey: "test" }).responses("model"), "xai"],
     ] as const
 
-    for (const [model, key] of providers) expect(model.route.providerMetadataKey).toBe(key)
+    for (const [model, key] of providers) expect(model.api.providerMetadataKey).toBe(key)
   })
 
   test("preserves native Together AI and Cerebras provider and route identities", () => {
@@ -85,15 +85,15 @@ describe("native OpenAI-compatible providers", () => {
       provider: "togetherai",
       compatibility: { maxTokensField: "max_tokens" },
       capabilities: { tools: { strict: false } },
-      route: { id: "togetherai-chat", protocol: "openai-chat" },
+      api: { id: "togetherai-chat", protocol: "openai-chat" },
     })
-    expect(together.route.endpoint.baseURL).toBe("https://api.together.xyz/v1")
+    expect(together.baseURL).toBe("https://api.together.xyz/v1")
     expect(cerebras).toMatchObject({
       provider: "cerebras",
       compatibility: { maxTokensField: "max_tokens", reasoningField: "reasoning" },
-      route: { id: "cerebras-chat", protocol: "openai-chat" },
+      api: { id: "cerebras-chat", protocol: "openai-chat" },
     })
-    expect(cerebras.route.endpoint.baseURL).toBe("https://api.cerebras.ai/v1")
+    expect(cerebras.baseURL).toBe("https://api.cerebras.ai/v1")
   })
 
   it.effect("preserves extracted providers' Chat requests and identity through custom endpoints", () =>
@@ -106,9 +106,9 @@ describe("native OpenAI-compatible providers", () => {
         }
         const selected = provider.configure(settings).model("test-model")
         expect(selected.provider).toBe(provider.id)
-        expect(selected.route.id).toBe(`${provider.id}-chat`)
-        expect(selected.route.protocol).toBe("openai-chat")
-        expect(selected.route.endpoint.baseURL).toBe(settings.baseURL)
+        expect(selected.api.id).toBe(`${provider.id}-chat`)
+        expect(selected.api.protocol).toBe("openai-chat")
+        expect(selected.baseURL).toBe(settings.baseURL)
         const input = {
           prompt: "Use a tool.",
           maxTokens: 48,
@@ -131,9 +131,9 @@ describe("native OpenAI-compatible providers", () => {
     expect(deepinfra).toMatchObject({
       provider: "deepinfra",
       compatibility: { maxTokensField: "max_tokens", reasoningField: "reasoning_content" },
-      route: { id: "deepinfra-chat", protocol: "openai-chat" },
+      api: { id: "deepinfra-chat", protocol: "openai-chat" },
     })
-    expect(deepinfra.route.endpoint.baseURL).toBe("https://api.deepinfra.com/v1/openai")
+    expect(deepinfra.baseURL).toBe("https://api.deepinfra.com/v1/openai")
   })
 
   it.effect("applies native provider request defaults even with a custom gateway URL", () =>
@@ -196,7 +196,7 @@ describe("native OpenAI-compatible providers", () => {
       "https://gateway.example/v1/openai",
       "https://gateway.example/v1/openai/",
     ]) {
-      expect(DeepInfra.configure({ apiKey: "fixture", baseURL }).model("gemma").route.endpoint.baseURL).toBe(
+      expect(DeepInfra.configure({ apiKey: "fixture", baseURL }).model("gemma").baseURL).toBe(
         "https://gateway.example/v1/openai",
       )
     }
@@ -212,7 +212,7 @@ describe("native OpenAI-compatible providers", () => {
         reasoningEffort: "high",
       })
 
-      expect(selected.route.endpoint.baseURL).toBe("https://gateway.example/v1")
+      expect(selected.baseURL).toBe("https://gateway.example/v1")
       expect(selected.options?.headers).toEqual({ "x-application": "opencode" })
       expect(selected.options?.http?.body).toEqual({ service_tier: "priority" })
       expect(selected.options?.providerOptions).toEqual({ reasoningEffort: "high" })

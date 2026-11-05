@@ -643,13 +643,13 @@ const lowerMessages = Effect.fnUntraced(function* (
     request.model.compatibility?.requireReasoning ??
     (request.model.compatibility?.reasoningField !== undefined ||
       request.model.provider === "deepseek" ||
-      request.model.route.endpoint.baseURL?.toLowerCase().includes("deepseek.com") ||
+      (request.model.baseURL ?? request.model.api.endpoint.baseURL)?.toLowerCase().includes("deepseek.com") ||
       modelID.includes("deepseek"))
   const reasoningField = request.model.compatibility?.reasoningField
   const mistral = ["mistral", "devstral", "codestral", "pixtral", "mixtral"].some((family) => modelID.includes(family))
   const lowering = {
     ...options,
-    providerMetadataKey: request.model.route.providerMetadataKey ?? request.model.provider,
+    providerMetadataKey: request.model.api.providerMetadataKey ?? request.model.provider,
     toolCallID: (id: string) => {
       if (mistral)
         return id
@@ -858,7 +858,7 @@ export const fromRequest = Effect.fn("OpenAIChat.fromRequest")(function* (
     )
   const flattened = ProviderShared.flattenToolRequest(request)
   const provider = request.model.provider
-  const baseURL = request.model.route.endpoint.baseURL
+  const baseURL = request.model.baseURL ?? request.model.api.endpoint.baseURL
   const detectedMaxTokensField = detectMaxTokensField(provider, baseURL)
   const maxTokensField = request.model.compatibility?.maxTokensField ?? detectedMaxTokensField
   const supportsStore = request.model.capabilities?.store ?? detectSupportsStore(provider, baseURL)
@@ -1341,7 +1341,7 @@ export const protocol = Protocol.make({
   stream: {
     event: OpenAIChatStreamEvent,
     initial: (request) => ({
-      providerMetadataKey: request.model.route.providerMetadataKey ?? request.model.provider,
+      providerMetadataKey: request.model.api.providerMetadataKey ?? request.model.provider,
       tools: ToolStream.empty<number>(),
       custom: OpenAIFreeform.tools(request),
       customCalls: new Set<number>(),

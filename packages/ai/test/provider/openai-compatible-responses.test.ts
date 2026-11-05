@@ -37,7 +37,7 @@ describe("Open Responses-compatible route", () => {
       expect(prepared.model).toMatchObject({
         id: "example-model",
         provider: "example",
-        route: {
+        api: {
           id: "openai-compatible-responses",
           endpoint: {
             baseURL: "https://responses.example.test/v1",

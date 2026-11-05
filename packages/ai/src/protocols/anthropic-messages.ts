@@ -657,7 +657,7 @@ const lowerMedia = Effect.fnUntraced(function* (part: MediaPart, request: LLMReq
     } satisfies AnthropicVideoBlock
   }
   const options = yield* decodeMediaOptions(
-    part.providerMetadata?.[request.model.route.providerMetadataKey ?? request.model.provider] ?? {},
+    part.providerMetadata?.[request.model.api.providerMetadataKey ?? request.model.provider] ?? {},
   )
   const image = (source: AnthropicImageBlock["source"]): AnthropicImageBlock => ({
     type: "image",
@@ -727,7 +727,7 @@ const requireThinkingSignature = (request: LLMRequest) => {
   if (request.model.compatibility?.requireSignature !== undefined) return request.model.compatibility.requireSignature
   const provider = request.model.provider.toLowerCase()
   const model = request.model.id.toLowerCase()
-  const baseURL = (request.model.route.endpoint.baseURL ?? "").toLowerCase()
+  const baseURL = (request.model.baseURL ?? request.model.api.endpoint.baseURL ?? "").toLowerCase()
   if (
     provider === "kimi-for-coding" ||
     provider === "moonshotai" ||
@@ -800,7 +800,7 @@ const appendToUserTurn = (messages: AnthropicMessage[], block: AnthropicUserBloc
 
 const lowerMessages = Effect.fnUntraced(function* (request: LLMRequest, breakpoints: Cache.Breakpoints) {
   const messages: AnthropicMessage[] = []
-  const providerMetadataKey = request.model.route.providerMetadataKey ?? request.model.provider
+  const providerMetadataKey = request.model.api.providerMetadataKey ?? request.model.provider
   // Text updates stay where they are unless a user turn follows them; then they move after the latest
   // user turn, the nearest spot where Anthropic accepts a native system message.
   const holdUpdates = supportsNativeSystemUpdates(request)
@@ -916,7 +916,7 @@ const lowerMessages = Effect.fnUntraced(function* (request: LLMRequest, breakpoi
 })
 
 // The model-ID checks below are fallbacks for models that leave `capabilities.reasoning.updates`,
-// `capabilities.systemUpdates` and `compatibility.supportsThinkingBlockBinding` unset.
+// `capabilities.systemUpdates` and `compatibility.thinkingBlockBinding` unset.
 const isThinkingOff = Schema.is(AnthropicThinkingDisabled)
 
 // Per-turn effort started with Claude Opus 5 and every Claude 5.1 model; later versions of any family inherit it.
@@ -1512,7 +1512,7 @@ export const protocol = Protocol.make({
     initial: (request) => ({
       provider: request.model.provider,
       compactions: {},
-      providerMetadataKey: request.model.route.providerMetadataKey ?? request.model.provider,
+      providerMetadataKey: request.model.api.providerMetadataKey ?? request.model.provider,
       tools: ToolStream.empty<number>(),
       reasoningSignatures: {},
       lifecycle: Lifecycle.initial(),
